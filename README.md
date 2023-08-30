@@ -1,6 +1,6 @@
 # Gait-Analysis-of-Freely-Walking-Mouse
-Analysis script for Long et al. paper, "Striatal Neuron Phase-Locking to the Gait Cycle during Locomotion"
-To replicate figures in the Long et al. paper, 
+Analysis script for Long et al. project on striatal neuron phase-locking to the gait cycle.
+To replicate data figures from the project:
 First, download the script from here and the processed data in pickle files by going to the website:
 
 For example, if you want to replicate figure1, 
