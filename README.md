@@ -1,7 +1,7 @@
 # Gait-Analysis-of-Freely-Walking-Mouse
 Analysis script for Long et al. project on striatal neuron phase-locking to the gait cycle.
 To replicate data figures from the project:
-First, download the script from here and the processed data in pickle files by going to the website:
+First, download the script from here and the processed data in pickle files by going to the website: https://zenodo.org/record/8303087
 
 For example, if you want to replicate figure1, 
 1. Open Figure1.py and run the script. 
