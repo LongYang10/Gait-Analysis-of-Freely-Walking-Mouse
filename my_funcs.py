@@ -1092,6 +1092,7 @@ def speedMeter(data, fs, params):
     high_diff = np.diff(temp_high)
     sp_up_h = sptimes[np.where(high_diff == 1)]
     sp_down_h = sptimes[np.where(high_diff == -1)]
+    sp_up_h = sp_up_h[np.where(sp_up_h>params['camTimes'][0])[0]]
     sp_down_h = sp_down_h[np.where(sp_down_h > sp_up_h[0])[0]] # remove beginning error
     sp_up_h = sp_up_h[np.where(sp_up_h < sp_down_h[-1])[0]] # remove the end error
     start_stop_h = np.concatenate((np.expand_dims(sp_up_h,axis=1), \
@@ -1106,6 +1107,7 @@ def speedMeter(data, fs, params):
     low_diff = np.diff(temp_low)
     sp_up_l = sptimes[np.where(low_diff==1)]
     sp_down_l = sptimes[np.where(low_diff==-1)]
+    sp_up_l = sp_up_l[np.where(sp_up_l>params['camTimes'][0])[0]]
     sp_down_l = sp_down_l[np.where(sp_down_l > sp_up_l[0])[0]] # remove beginning error
     sp_up_l = sp_up_l[np.where(sp_up_l < sp_down_l[-1])[0]] # remove the end error
     
@@ -1412,6 +1414,9 @@ def angle_2vectors(v1, v2):
     unit_v1 = v1 / np.linalg.norm(v1)
     unit_v2 = v2 / np.linalg.norm(v2)
     dot_product = np.dot(unit_v1, unit_v2)
+    
+    if abs(dot_product)>1: # in case, unit_v1==unit_v2
+        dot_product = 1
     v_angle = np.arccos(dot_product)
     
     c = np.cross(v1,v2)
