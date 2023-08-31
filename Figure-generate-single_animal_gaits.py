@@ -62,7 +62,7 @@ for file in all_files:
     params = mouse2D['params']
     
     # get kinematics
-    params['start_stop_minimum']=1
+    params['start_stop_minimum']=0.3
     kinematics = mf.mouse_kinematics(mouse2D, params)
     
     # calculate head angle
