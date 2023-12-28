@@ -325,10 +325,10 @@ rf_stance_p = svm_angle['lr'][rf_index]
 rr_index = np.round(rr_stance*params['fr']).astype(int)
 rr_stance_p = svm_angle['lr'][rr_index]
 
-lf_m, lf_sd = mf.circ_m(lf_stance_p)
-lr_m, lr_sd = mf.circ_m(lr_stance_p)
-rf_m, rf_sd = mf.circ_m(rf_stance_p)
-rr_m, rr_sd = mf.circ_m(rr_stance_p)
+lf_m, lf_sd,_ = mf.circ_m(lf_stance_p)
+lr_m, lr_sd,_ = mf.circ_m(lr_stance_p)
+rf_m, rf_sd,_ = mf.circ_m(rf_stance_p)
+rr_m, rr_sd,_ = mf.circ_m(rr_stance_p)
 
 mean_a = [lf_m, rf_m, rr_m]
 std_a = [lf_sd, rf_sd, rr_sd]

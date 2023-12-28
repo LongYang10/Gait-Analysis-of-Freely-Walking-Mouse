@@ -280,3 +280,151 @@ ax.spines[['top', 'right']].set_visible(False)
 ax.spines['left'].set_linewidth(1)
 ax.spines['bottom'].set_linewidth(1)
 plt.savefig(f'{figpath}Fig2-K.pdf', dpi=300, bbox_inches='tight', transparent=True)
+
+#%% get phase locked neurons in 1 limb, 2 limb, 3 limbs, 4 limbs
+#new Figure 2 – Figure Supplement 1A
+group = 'HL'
+
+p1 = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                    (psi_trimed['limb']=='lf'),['p']].values
+p2 = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                    (psi_trimed['limb']=='lr'),['p']].values
+p3 = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                    (psi_trimed['limb']=='rf'),['p']].values
+p4 = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                    (psi_trimed['limb']=='rr'),['p']].values
+limb_p = np.concatenate((p1, p2, p3, p4),axis=1)
+limb_p_tag = np.zeros_like(limb_p)
+limb_p_tag[np.where(limb_p<0.05)]=1
+limb_p_sum = np.sum(limb_p_tag, axis=1)
+
+# find diagnal limb
+double_limb_i = np.where(limb_p_sum==2)[0]
+diag_limb = 0
+non_diag = 0
+for i in range(len(double_limb_i)):
+    row_i = double_limb_i[i]
+    if ((limb_p_tag[row_i, 0]==1) & (limb_p_tag[row_i,3]==1)) | \
+       ((limb_p_tag[row_i, 1]==1) & (limb_p_tag[row_i,2]==1)):
+        diag_limb = diag_limb+1
+    else:
+        non_diag = non_diag+1
+
+import matplotlib.pyplot as plt
+
+labels = 'none', '1 limb', '2 limbs', '3 limbs', '4 limbs'
+sizes = [len(np.where(limb_p_sum==0)[0]), len(np.where(limb_p_sum==1)[0]), \
+         len(np.where(limb_p_sum==2)[0]), len(np.where(limb_p_sum==3)[0]), \
+         len(np.where(limb_p_sum==4)[0])]
+
+fig, ax = plt.subplots()
+ax.pie(sizes, labels=labels, autopct='%1.1f%%')
+
+
+# creating the dataset
+sizes_pt = np.asarray(sizes)/sum(sizes)*100
+data = {'1':sizes_pt[1], '2':sizes_pt[2], '3':sizes_pt[3], '4': sizes_pt[4]}
+courses = list(data.keys())
+values = list(data.values())
+  
+fig = plt.figure(figsize=(3, 3))
+ax1 = fig.add_subplot(111)
+ 
+# creating the bar plot
+ax1.bar(courses, values, color =['#FF0000', '#00FF00', '#0000FF', '#FF00FF'],
+        width = 0.7)
+
+ax1.set_yticks([0,5, 10,15, 20])
+ax1.set_ylabel("% of cells", fontsize=16, family='arial')
+ax1.set_xlabel('number of limb',fontsize=16,family='arial')
+ax1.spines[['left','bottom']].set_linewidth(1)
+ax1.spines[['top', 'right']].set_visible(False)
+ax1.tick_params(direction='out', width=1, length=5, labelsize=16)
+ax1.set_xticklabels(["1", "2", "3", "4"])
+ax1.set_yticklabels(ax1.get_yticks(),family='arial')
+
+# save data for graphpad prism
+pn_nl = zip(courses, values)
+pn_nl_df = pd.DataFrame(pn_nl, columns=['limb','N'])
+#plt.savefig(f'{figpath}Fig2-A-{group}-si.pdf', dpi=300, bbox_inches='tight', transparent=True)
+
+#%% correlation between firing rate and vector length - single limb
+# new Figure 2 – Figure Supplement 1E
+from scipy.optimize import curve_fit
+group = 'HL'
+limb = 'lf'
+# phase locking encoding (at least one limb)
+vl_lf = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                       (psi_trimed['limb']==limb),['r']].values.squeeze() 
+nfr = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                     (psi_trimed['limb']==limb),['base_fr']].values.squeeze() 
+    
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+#ax.scatter(vl_lf, nfr)
+def linear_func(x, a, b):
+    return b + a * x 
+# calculate the linear fitting of speed data
+popt, pcov = curve_fit(linear_func, np.log(nfr), np.log(vl_lf))
+
+x_data = np.linspace(min(nfr), max(nfr), 300)
+y_fit = linear_func(np.log(x_data), *popt)
+
+# plot firing rate vs vector length
+ax.plot(nfr,vl_lf, '.k', ms=6)
+ax.plot(x_data, np.exp(y_fit), ':r', lw=3)
+#ax.set_xlim([0,400])
+#ax.set_ylim([0,400])
+ax.tick_params(direction='out', width=1, length=10, labelsize=24)
+ax.set_xlabel('firing rate (1/s)', fontsize=24, family='arial')
+ax.set_ylabel('vector length (n.s.)', fontsize=24, family='arial')
+ax.spines[['top', 'right']].set_visible(False)
+ax.spines['left'].set_linewidth(1)
+ax.spines['bottom'].set_linewidth(1)
+plt.xscale("log")
+plt.yscale('log')
+#plt.savefig(f'{figpath}Fig2-si-E.pdf', dpi=300, bbox_inches='tight', transparent=True)
+
+#%% vector length rank on limb
+# new Figure 2 – Figure Supplement 1C
+
+group = 'HL'
+# phase locking encoding (at least one limb)
+vl_lf = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                       (psi_trimed['limb']=='lf'),['r']].values.squeeze()
+vl_lr = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                       (psi_trimed['limb']=='lr'),['r']].values.squeeze()
+vl_rf = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                       (psi_trimed['limb']=='rf'),['r']].values.squeeze() 
+vl_rr = psi_trimed.loc[(psi_trimed['group_id']==group)&\
+                       (psi_trimed['limb']=='rr'),['r']].values.squeeze() 
+    
+vl_rank = np.concatenate((np.expand_dims(vl_lf, axis=1), \
+                          np.expand_dims(vl_lr, axis=1), \
+                          np.expand_dims(vl_rf, axis=1), \
+                          np.expand_dims(vl_rr, axis=1)), axis=1)
+vl_sort = np.sort(vl_rank, axis=1)
+
+# creating the dataset
+data = {'rank': ["1st" for x in range(len(vl_lf))]+\
+                ["2nd" for x in range(len(vl_lf))]+\
+                ["3rd" for x in range(len(vl_lf))]+\
+                ["4th" for x in range(len(vl_lf))],
+        'vector length':vl_sort[:,3].tolist()+vl_sort[:,2].tolist()+\
+        vl_sort[:,1].tolist()+vl_sort[:,0].tolist()}
+  
+fig = plt.figure(figsize=(3, 3))
+ax1 = fig.add_subplot(111)
+sns.barplot(data, x="rank", y="vector length", errorbar="se",ax=ax1)
+ax1.set_ylabel('vector length', fontsize=12, family='arial')
+ax1.set(xlabel='ranked limb')
+ax1.spines[['left','bottom']].set_linewidth(2)
+ax1.spines[['top', 'right']].set_visible(False)
+ax1.tick_params(direction='out', width=2, length=8, labelsize=12)
+ax1.set_xticklabels(["1st", "2nd", "3rd", "4th"])
+ax1.set_yticks([0.0, 0.05, 0.1, 0.15])
+ax1.set_yticklabels(ax1.get_yticks(),family='arial')
+plt.tight_layout()
+
+#plt.savefig(f'{figpath}Fig2-si-C.pdf', dpi=300, bbox_inches='tight', transparent=True)

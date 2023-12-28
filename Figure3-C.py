@@ -13,7 +13,6 @@ import os
 
 import matplotlib.pyplot as plt
 from collections import Counter
-from matplotlib_venn import venn3_unweighted
 from matplotlib_venn import venn3
 
 import pickle
